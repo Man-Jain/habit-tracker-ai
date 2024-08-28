@@ -21,7 +21,7 @@ To read more about using these font, please visit the Next.js documentation:
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MinusIcon, PlusIcon } from "lucide-react";
+import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 // Define the Habit type
@@ -110,6 +110,25 @@ export function HabitsList() {
     setQuote("The secret of getting ahead is getting started.");
   }, []);
 
+  const deleteHabit = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this habit?")) {
+      setHabits(habits.filter((habit) => habit.id !== id));
+    }
+  };
+
+  const resetAllHabits = () => {
+    if (
+      window.confirm("Are you sure you want to reset all habit counters to 0?")
+    ) {
+      setHabits(
+        habits.map((habit) => ({
+          ...habit,
+          currentValue: 0,
+        }))
+      );
+    }
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto py-1 sm:py-2 bg-white">
       <div className="text-center mb-4 sm:mb-6">
@@ -120,6 +139,18 @@ export function HabitsList() {
           &quot;{quote}&quot;
         </p>
       </div>
+
+      <div className="flex justify-center mb-4">
+        <Button
+          onClick={resetAllHabits}
+          variant="outline"
+          size="sm"
+          className="text-red-500 border-red-500 hover:bg-red-100"
+        >
+          Reset All Counters
+        </Button>
+      </div>
+
       <div className="grid gap-4 mb-8">
         {habits.length === 0 ? (
           <div className="flex justify-center items-center">
@@ -174,6 +205,14 @@ export function HabitsList() {
                     onClick={() => updateHabitValue(habit.id, true)}
                   >
                     <PlusIcon className="w-3 h-3 sm:w-4 sm:h-4 text-[#4a4a4a] dark:text-[#f0f0f0]" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteHabit(habit.id)}
+                    className="ml-2 text-red-500 hover:text-red-700"
+                  >
+                    <TrashIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
               </div>
