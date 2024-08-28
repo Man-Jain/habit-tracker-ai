@@ -189,14 +189,13 @@ export function HabitsList() {
               </div>
               <div className="w-full bg-[#f0f0f0] dark:bg-[#3a3a3a] rounded-full mt-2">
                 <div
-                  className={`bg-[#${getIconColor(
-                    habit.name
-                  )}] h-2 rounded-full`}
+                  className="h-2 rounded-full"
                   style={{
                     width: `${Math.min(
                       (habit.currentValue / habit.dailyGoal) * 100,
                       100
                     )}%`,
+                    backgroundColor: getPastelColor(habit.name),
                   }}
                 />
               </div>
@@ -263,16 +262,20 @@ export function HabitsList() {
   );
 }
 
-// Helper function to get icon color based on habit name
-function getIconColor(habitName: string): string {
-  switch (habitName) {
-    case "Drink Water":
-      return "a0d8ef";
-    case "Read":
-      return "ffd1dc";
-    case "Exercise":
-      return "b5e7a0";
-    default:
-      return "a0d8ef";
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
   }
+  return hash;
+}
+
+function getPastelColor(habitName: string): string {
+  const hash = hashString(habitName);
+  const hue = hash % 360;
+  const saturation = 70 + (hash % 20); // 70-90%
+  const lightness = 80 + (hash % 10); // 80-90%
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
