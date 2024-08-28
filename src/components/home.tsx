@@ -140,7 +140,7 @@ export function HabitsList() {
           <span className="mr-2">🌟</span> Habits
         </h1>
         <p className="text-xs sm:text-sm text-[#7a7a7a] dark:text-[#b0b0b0] mt-1 sm:mt-2 italic">
-          "{quote}"
+          &quot;{quote}&quot;
         </p>
       </div>
       <div className="grid gap-4 mb-8">
