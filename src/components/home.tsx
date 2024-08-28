@@ -37,45 +37,22 @@ type Habit = {
 
 export function HabitsList() {
   // Load habits from localStorage on component mount
-  const [habits, setHabits] = useState<Habit[]>(() => {
-    const savedHabits = localStorage.getItem("habits");
-    return savedHabits
-      ? JSON.parse(savedHabits)
-      : [
-          {
-            id: "1",
-            name: "Drink Water",
-            emoji: "💧",
-            currentValue: 1200,
-            dailyGoal: 2000,
-            unit: "ml",
-            increment: 400,
-          },
-          {
-            id: "2",
-            name: "Read",
-            emoji: "📚",
-            currentValue: 15,
-            dailyGoal: 20,
-            unit: "pages",
-            increment: 10,
-          },
-          {
-            id: "3",
-            name: "Exercise",
-            emoji: "🏋️",
-            currentValue: 25,
-            dailyGoal: 45,
-            unit: "mins",
-            increment: 30,
-          },
-        ];
-  });
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
-  // Save habits to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem("habits", JSON.stringify(habits));
-  }, [habits]);
+    setIsClient(true);
+    const savedHabits = localStorage.getItem("habits");
+    if (savedHabits) {
+      setHabits(JSON.parse(savedHabits));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem("habits", JSON.stringify(habits));
+    }
+  }, [habits, isClient]);
 
   // Function to update habit value
   const updateHabitValue = (id: string, increment: boolean) => {
@@ -134,7 +111,7 @@ export function HabitsList() {
   }, []);
 
   return (
-    <div className="w-full max-w-md mx-auto py-1 sm:py-2 bg-white">
+    <div className="w-full max-w-2xl mx-auto py-1 sm:py-2 bg-white">
       <div className="text-center mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-[#4a4a4a] dark:text-[#f0f0f0] flex items-center justify-center">
           <span className="mr-2">🌟</span> Habits
@@ -144,61 +121,88 @@ export function HabitsList() {
         </p>
       </div>
       <div className="grid gap-4 mb-8">
-        {habits.map((habit) => (
-          <Card
-            key={habit.id}
-            className="p-3 sm:p-4 bg-[#fff] dark:bg-[#2a2a2a] shadow-md"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2 mb-2 sm:mb-0">
-                <span className="text-xl sm:text-2xl">{habit.emoji}</span>
-                <h3 className="text-base sm:text-lg font-medium text-[#4a4a4a] dark:text-[#f0f0f0]">
-                  {habit.name}
-                </h3>
+        {habits.length === 0 ? (
+          <div className="flex justify-center items-center">
+            <svg
+              className="animate-spin h-10 w-10 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+        ) : (
+          habits.map((habit) => (
+            <Card
+              key={habit.id}
+              className="p-3 sm:p-4 bg-[#fff] dark:bg-[#2a2a2a] shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl sm:text-2xl">{habit.emoji}</span>
+                  <h3 className="text-base sm:text-lg font-medium text-[#4a4a4a] dark:text-[#f0f0f0]">
+                    {habit.name}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => updateHabitValue(habit.id, false)}
+                  >
+                    <MinusIcon className="w-3 h-3 sm:w-4 sm:h-4 text-[#4a4a4a] dark:text-[#f0f0f0]" />
+                  </Button>
+                  <span className="text-xl sm:text-2xl font-bold text-[#4a4a4a] dark:text-[#f0f0f0] min-w-[3ch] text-center">
+                    {habit.currentValue}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => updateHabitValue(habit.id, true)}
+                  >
+                    <PlusIcon className="w-3 h-3 sm:w-4 sm:h-4 text-[#4a4a4a] dark:text-[#f0f0f0]" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => updateHabitValue(habit.id, false)}
-                >
-                  <MinusIcon className="w-3 h-3 sm:w-4 sm:h-4 text-[#4a4a4a] dark:text-[#f0f0f0]" />
-                </Button>
-                <span className="text-xl sm:text-2xl font-bold text-[#4a4a4a] dark:text-[#f0f0f0]">
-                  {habit.currentValue}
+              <div className="flex justify-between text-xs sm:text-sm text-[#7a7a7a] dark:text-[#b0b0b0] mt-2">
+                <span>
+                  Daily Goal: <span className="mr-1">{habit.dailyGoal}</span>
+                  {habit.unit}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => updateHabitValue(habit.id, true)}
-                >
-                  <PlusIcon className="w-3 h-3 sm:w-4 sm:h-4 text-[#4a4a4a] dark:text-[#f0f0f0]" />
-                </Button>
+                <span>
+                  Current: <span className="mr-1">{habit.currentValue}</span>
+                  {habit.unit}
+                </span>
               </div>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-[#7a7a7a] dark:text-[#b0b0b0] mt-2">
-              <span>
-                Daily Goal: <span className="mr-1">{habit.dailyGoal}</span>
-                {habit.unit}
-              </span>
-              <span>
-                Current: <span className="mr-1">{habit.currentValue}</span>
-                {habit.unit}
-              </span>
-            </div>
-            <div className="w-full bg-[#f0f0f0] dark:bg-[#3a3a3a] rounded-full mt-2">
-              <div
-                className={`bg-[#${getIconColor(habit.name)}] h-2 rounded-full`}
-                style={{
-                  width: `${Math.min(
-                    (habit.currentValue / habit.dailyGoal) * 100,
-                    100
-                  )}%`,
-                }}
-              />
-            </div>
-          </Card>
-        ))}
+              <div className="w-full bg-[#f0f0f0] dark:bg-[#3a3a3a] rounded-full mt-2">
+                <div
+                  className={`bg-[#${getIconColor(
+                    habit.name
+                  )}] h-2 rounded-full`}
+                  style={{
+                    width: `${Math.min(
+                      (habit.currentValue / habit.dailyGoal) * 100,
+                      100
+                    )}%`,
+                  }}
+                />
+              </div>
+            </Card>
+          ))
+        )}
       </div>
 
       <hr className="my-8" />
