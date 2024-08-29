@@ -305,6 +305,16 @@ export function HabitsList() {
           </Button>
         </div>
         <Input
+          type="number"
+          placeholder="Daily goal"
+          value={newHabit.dailyGoal}
+          onChange={(e) =>
+            setNewHabit({ ...newHabit, dailyGoal: parseInt(e.target.value) })
+          }
+          required
+          className="text-sm sm:text-base"
+        />
+        <Input
           placeholder="Unit"
           value={newHabit.unit}
           onChange={(e) => setNewHabit({ ...newHabit, unit: e.target.value })}
