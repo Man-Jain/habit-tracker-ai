@@ -9,6 +9,15 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV !== "development", // Remove console.log in production
   },
+  experimental: {
+    modern: true,
+    serviceWorker: true,
+  },
+  // Cache configuration
+  cache: {
+    maxAge: 31536000000, // 1 year
+    staleWhileRevalidate: 86400000, // 1 day
+  },
 };
 
 export default withPWA({
@@ -16,18 +25,4 @@ export default withPWA({
   disable: process.env.NODE_ENV === "development", // disable PWA in the development environment
   register: true, // register the PWA service worker
   skipWaiting: true, // skip waiting for service worker activation
-  workboxOptions: {
-    runtimeCaching: [
-      {
-        urlPattern: /^https?.*/,
-        handler: "NetworkFirst",
-        options: {
-          cacheName: "offlineCache",
-          expiration: {
-            maxEntries: 200,
-          },
-        },
-      },
-    ],
-  },
 })(nextConfig);
