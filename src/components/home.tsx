@@ -81,6 +81,44 @@ export function HabitsList() {
     increment: 10,
   });
 
+  const [isLoadingEmoji, setIsLoadingEmoji] = useState(false);
+
+  const autoPickEmoji = async () => {
+    setIsLoadingEmoji(true);
+    try {
+      const response = await fetch(
+        "https://llama3.gaianet.network/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: "user",
+                content: `Pick the most relevant emoji from all emojis for - ${newHabit.name}. Make sure it's the closest and most relevant option. Just return the emoji nothing else.`,
+              },
+            ],
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        setNewHabit((prev) => ({
+          ...prev,
+          emoji: data.choices[0].message.content,
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching emoji:", error);
+    } finally {
+      setIsLoadingEmoji(false);
+    }
+  };
+
   const addHabit = (e: React.FormEvent) => {
     e.preventDefault();
     const habit: Habit = {
@@ -247,23 +285,25 @@ export function HabitsList() {
           required
           className="text-sm sm:text-base"
         />
-        <Input
-          placeholder="Emoji"
-          value={newHabit.emoji}
-          onChange={(e) => setNewHabit({ ...newHabit, emoji: e.target.value })}
-          required
-          className="text-sm sm:text-base"
-        />
-        <Input
-          type="number"
-          placeholder="Daily goal"
-          value={newHabit.dailyGoal}
-          onChange={(e) =>
-            setNewHabit({ ...newHabit, dailyGoal: parseInt(e.target.value) })
-          }
-          required
-          className="text-sm sm:text-base"
-        />
+        <div className="flex items-center space-x-2">
+          <Input
+            placeholder="Emoji"
+            value={newHabit.emoji}
+            onChange={(e) =>
+              setNewHabit({ ...newHabit, emoji: e.target.value })
+            }
+            required
+            className="text-sm sm:text-base flex-grow"
+          />
+          <Button
+            type="button"
+            onClick={autoPickEmoji}
+            disabled={isLoadingEmoji}
+            className="whitespace-nowrap text-xs sm:text-sm bg-gradient-to-r from-pink-500 to-yellow-500 hover:from-pink-600 hover:to-yellow-600 text-white font-semibold transition-all duration-200"
+          >
+            {isLoadingEmoji ? "Loading..." : "Auto Pick Emoji"}
+          </Button>
+        </div>
         <Input
           placeholder="Unit"
           value={newHabit.unit}
