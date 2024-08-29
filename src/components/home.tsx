@@ -98,7 +98,7 @@ export function HabitsList() {
             messages: [
               {
                 role: "user",
-                content: `Pick the most relevant emoji from all emojis for - ${newHabit.name}. Make sure it's the closest and most relevant option. Just return the emoji nothing else.`,
+                content: `Pick the most relevant emoji from all emojis for - ${newHabit.name}. Make sure it's the closest and most relevant option. The emoji is for a habit tracker app and the emoji would be asked for a habit user wants to track. Pick the emoji for the verb in the habit name and then a noun in that order. Just return the emoji nothing else.`,
               },
             ],
           }),
