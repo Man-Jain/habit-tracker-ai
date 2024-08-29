@@ -120,6 +120,12 @@ export function HabitsList() {
     if (
       window.confirm("Are you sure you want to reset all habit counters to 0?")
     ) {
+      // Store current habits data with timestamp
+      const timestamp = Math.floor(Date.now() / 1000); // Unix epoch time in seconds
+      const currentData = JSON.stringify(habits);
+      localStorage.setItem(`habits_backup_${timestamp}`, currentData);
+
+      // Reset all habit counters
       setHabits(
         habits.map((habit) => ({
           ...habit,
