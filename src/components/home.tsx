@@ -375,123 +375,127 @@ export function HabitsList() {
 
       <hr className="my-8" />
 
-      <div className="mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-semibold text-[#4a4a4a] dark:text-[#f0f0f0] flex items-center">
-          <span className="mr-2">➕</span> Add New Habit
-        </h2>
-      </div>
+      <div>
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-semibold text-[#4a4a4a] dark:text-[#f0f0f0] flex items-center">
+            <span className="mr-2">➕</span> Add New Habit
+          </h2>
+        </div>
 
-      <form onSubmit={addHabit} className="space-y-3 sm:space-y-4">
-        <Input
-          placeholder="Habit name"
-          value={newHabit.name}
-          onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
-          required
-          className="text-sm sm:text-base"
-        />
-        <div className="flex items-center space-x-2">
+        <form onSubmit={addHabit} className="space-y-3 sm:space-y-4">
           <Input
-            placeholder="Emoji"
-            value={newHabit.emoji}
+            placeholder="Habit name"
+            value={newHabit.name}
+            onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
+            required
+            className="text-sm sm:text-base"
+          />
+          <div className="flex items-center space-x-2">
+            <Input
+              placeholder="Emoji"
+              value={newHabit.emoji}
+              onChange={(e) =>
+                setNewHabit({ ...newHabit, emoji: e.target.value })
+              }
+              required
+              className="text-sm sm:text-base flex-grow"
+            />
+            <Button
+              type="button"
+              onClick={autoPickEmoji}
+              disabled={isLoadingEmoji}
+              className="whitespace-nowrap text-xs sm:text-sm bg-gradient-to-r from-pink-500 to-yellow-500 hover:from-pink-600 hover:to-yellow-600 text-white font-semibold transition-all duration-200"
+            >
+              {isLoadingEmoji ? "Loading..." : "Auto Pick Emoji"}
+            </Button>
+          </div>
+          <Input
+            type="number"
+            placeholder="Daily goal"
+            value={newHabit.dailyGoal}
             onChange={(e) =>
-              setNewHabit({ ...newHabit, emoji: e.target.value })
+              setNewHabit({ ...newHabit, dailyGoal: parseInt(e.target.value) })
             }
             required
-            className="text-sm sm:text-base flex-grow"
+            className="text-sm sm:text-base"
           />
-          <Button
-            type="button"
-            onClick={autoPickEmoji}
-            disabled={isLoadingEmoji}
-            className="whitespace-nowrap text-xs sm:text-sm bg-gradient-to-r from-pink-500 to-yellow-500 hover:from-pink-600 hover:to-yellow-600 text-white font-semibold transition-all duration-200"
-          >
-            {isLoadingEmoji ? "Loading..." : "Auto Pick Emoji"}
+          <Input
+            placeholder="Unit"
+            value={newHabit.unit}
+            onChange={(e) => setNewHabit({ ...newHabit, unit: e.target.value })}
+            required
+            className="text-sm sm:text-base"
+          />
+          <Input
+            type="number"
+            placeholder="Increment"
+            value={newHabit.increment}
+            onChange={(e) =>
+              setNewHabit({ ...newHabit, increment: parseInt(e.target.value) })
+            }
+            required
+            className="text-sm sm:text-base"
+          />
+          <Button type="submit" className="w-full text-sm sm:text-base">
+            Add Habit
           </Button>
-        </div>
-        <Input
-          type="number"
-          placeholder="Daily goal"
-          value={newHabit.dailyGoal}
-          onChange={(e) =>
-            setNewHabit({ ...newHabit, dailyGoal: parseInt(e.target.value) })
-          }
-          required
-          className="text-sm sm:text-base"
-        />
-        <Input
-          placeholder="Unit"
-          value={newHabit.unit}
-          onChange={(e) => setNewHabit({ ...newHabit, unit: e.target.value })}
-          required
-          className="text-sm sm:text-base"
-        />
-        <Input
-          type="number"
-          placeholder="Increment"
-          value={newHabit.increment}
-          onChange={(e) =>
-            setNewHabit({ ...newHabit, increment: parseInt(e.target.value) })
-          }
-          required
-          className="text-sm sm:text-base"
-        />
-        <Button type="submit" className="w-full text-sm sm:text-base">
-          Add Habit
-        </Button>
-      </form>
+        </form>
+      </div>
 
       <hr className="my-8" />
 
-      {chartData.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl sm:text-2xl font-semibold text-[#4a4a4a] dark:text-[#f0f0f0] mb-4">
-            Habit Progress
-          </h2>
-          <Slider
-            ref={sliderRef}
-            {...sliderSettings}
-            prevArrow={
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => sliderRef.current?.slickPrev()}
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10"
-              >
-                <ChevronLeftIcon className="w-4 h-4 text-black" />
-              </Button>
-            }
-            nextArrow={
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => sliderRef.current?.slickNext()}
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10"
-              >
-                <ChevronRightIcon className="w-4 h-4 text-black" />
-              </Button>
-            }
-          >
-            {chartData.map((chart, index) => (
-              <div key={index} className="p-4">
-                <h3 className="text-lg font-medium text-center mb-2">
-                  {chart.habit}
-                </h3>
-                <Line
-                  data={chart.data}
-                  options={{
-                    responsive: true,
-                    scales: {
-                      y: {
-                        beginAtZero: true,
+      <div className="mb-6">
+        {chartData.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl sm:text-2xl font-semibold text-[#4a4a4a] dark:text-[#f0f0f0] mb-4">
+              Habit Progress
+            </h2>
+            <Slider
+              ref={sliderRef}
+              {...sliderSettings}
+              prevArrow={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => sliderRef.current?.slickPrev()}
+                  className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10"
+                >
+                  <ChevronLeftIcon className="w-4 h-4 text-black" />
+                </Button>
+              }
+              nextArrow={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => sliderRef.current?.slickNext()}
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10"
+                >
+                  <ChevronRightIcon className="w-4 h-4 text-black" />
+                </Button>
+              }
+            >
+              {chartData.map((chart, index) => (
+                <div key={index} className="p-4">
+                  <h3 className="text-lg font-medium text-center mb-2">
+                    {chart.habit}
+                  </h3>
+                  <Line
+                    data={chart.data}
+                    options={{
+                      responsive: true,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                        },
                       },
-                    },
-                  }}
-                />
-              </div>
-            ))}
-          </Slider>
-        </div>
-      )}
+                    }}
+                  />
+                </div>
+              ))}
+            </Slider>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
