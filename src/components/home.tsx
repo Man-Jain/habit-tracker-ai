@@ -19,10 +19,34 @@ To read more about using these font, please visit the Next.js documentation:
 **/
 "use client";
 import React, { useState, useEffect } from "react";
+import Slider from "react-slick";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 // Define the Habit type
 type Habit = {
@@ -160,8 +184,18 @@ export function HabitsList() {
     ) {
       // Store current habits data with timestamp
       const timestamp = Math.floor(Date.now() / 1000); // Unix epoch time in seconds
-      const currentData = JSON.stringify({ timestamp, habits });
-      localStorage.setItem(`habits_backup`, currentData);
+      const oldData = localStorage.getItem("habits_backup");
+      let backupData = oldData ? JSON.parse(oldData) : [];
+
+      // Ensure backupData is an array
+      if (!Array.isArray(backupData)) {
+        backupData = [backupData];
+      }
+
+      const currentData = { timestamp, habits };
+      backupData.push(currentData);
+
+      localStorage.setItem("habits_backup", JSON.stringify(backupData));
 
       // Reset all habit counters
       setHabits(
@@ -173,20 +207,69 @@ export function HabitsList() {
     }
   };
 
-  // useeffect and usestate that store the whole application data in the state
-
-  const [appData, setAppData] = useState("");
+  const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
-    const data = localStorage.getItem(`habits_backup`);
-    if (data) {
-      setAppData(data);
+    const backupDataString = localStorage.getItem("habits_backup");
+    if (backupDataString) {
+      const backupData = JSON.parse(backupDataString);
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+
+      const all_habits: Habit[] = [];
+
+      backupData.map((backup: any) => {
+        backup.habits.map((habit: Habit) => {
+          const isHabit = all_habits.find((h: Habit) => h.name === habit.name);
+          if (!isHabit) {
+            all_habits.push(habit);
+          }
+        });
+      });
+
+      const charts = all_habits.map((habit) => {
+        const data = backupData.map((backup: any) => ({
+          x: new Date(backup.timestamp * 1000).toLocaleDateString(),
+          y:
+            backup.habits.find((h: Habit) => h.id === habit.id)?.currentValue ||
+            0,
+        }));
+
+        // Add current data point
+        data.push({
+          x: new Date(currentTimestamp * 1000).toLocaleDateString(),
+          y: habit.currentValue,
+        });
+
+        return {
+          habit: habit.name,
+          data: {
+            labels: data.map((d: any) => d.x),
+            datasets: [
+              {
+                label: habit.name,
+                data: data.map((d: any) => d.y),
+                borderColor: getPastelColor(habit.name),
+                tension: 0.1,
+              },
+            ],
+          },
+        };
+      });
+
+      setChartData(charts);
     }
-  }, []);
+  }, [habits]);
+
+  const sliderSettings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
 
   return (
     <div className="w-full max-w-2xl mx-auto py-1 sm:py-2 bg-white">
-      <div>{appData}</div>
       <div className="text-center mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-[#4a4a4a] dark:text-[#f0f0f0] flex items-center justify-center">
           <span className="mr-2">🌟</span> Habits
@@ -347,6 +430,36 @@ export function HabitsList() {
           Add Habit
         </Button>
       </form>
+
+      <hr className="my-8" />
+
+      {chartData.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-xl sm:text-2xl font-semibold text-[#4a4a4a] dark:text-[#f0f0f0] mb-4">
+            Habit Progress
+          </h2>
+          <Slider {...sliderSettings}>
+            {chartData.map((chart, index) => (
+              <div key={index} className="p-4">
+                <h3 className="text-lg font-medium text-center mb-2">
+                  {chart.habit}
+                </h3>
+                <Line
+                  data={chart.data}
+                  options={{
+                    responsive: true,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                      },
+                    },
+                  }}
+                />
+              </div>
+            ))}
+          </Slider>
+        </div>
+      )}
     </div>
   );
 }
