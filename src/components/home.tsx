@@ -18,7 +18,7 @@ To read more about using these font, please visit the Next.js documentation:
 - Pages Directory: https://nextjs.org/docs/pages/building-your-application/optimizing/fonts
 **/
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Slider from "react-slick";
 import { Line } from "react-chartjs-2";
 import {
@@ -35,7 +35,13 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
+import {
+  MinusIcon,
+  PlusIcon,
+  TrashIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 ChartJS.register(
@@ -260,12 +266,15 @@ export function HabitsList() {
     }
   }, [habits]);
 
+  const sliderRef = useRef<Slider>(null);
+
   const sliderSettings = {
     dots: true,
-    infinite: false,
-    speed: 500,
+    infinite: true,
+    speed: 100,
     slidesToShow: 1,
     slidesToScroll: 1,
+    arrows: true,
   };
 
   return (
@@ -438,7 +447,30 @@ export function HabitsList() {
           <h2 className="text-xl sm:text-2xl font-semibold text-[#4a4a4a] dark:text-[#f0f0f0] mb-4">
             Habit Progress
           </h2>
-          <Slider {...sliderSettings}>
+          <Slider
+            ref={sliderRef}
+            {...sliderSettings}
+            prevArrow={
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => sliderRef.current?.slickPrev()}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10"
+              >
+                <ChevronLeftIcon className="w-4 h-4 text-black" />
+              </Button>
+            }
+            nextArrow={
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => sliderRef.current?.slickNext()}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10"
+              >
+                <ChevronRightIcon className="w-4 h-4 text-black" />
+              </Button>
+            }
+          >
             {chartData.map((chart, index) => (
               <div key={index} className="p-4">
                 <h3 className="text-lg font-medium text-center mb-2">
