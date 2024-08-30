@@ -160,8 +160,8 @@ export function HabitsList() {
     ) {
       // Store current habits data with timestamp
       const timestamp = Math.floor(Date.now() / 1000); // Unix epoch time in seconds
-      const currentData = JSON.stringify(habits);
-      localStorage.setItem(`habits_backup_${timestamp}`, currentData);
+      const currentData = JSON.stringify({ timestamp, habits });
+      localStorage.setItem(`habits_backup`, currentData);
 
       // Reset all habit counters
       setHabits(
@@ -173,8 +173,20 @@ export function HabitsList() {
     }
   };
 
+  // useeffect and usestate that store the whole application data in the state
+
+  const [appData, setAppData] = useState("");
+
+  useEffect(() => {
+    const data = localStorage.getItem(`habits_backup`);
+    if (data) {
+      setAppData(data);
+    }
+  }, []);
+
   return (
     <div className="w-full max-w-2xl mx-auto py-1 sm:py-2 bg-white">
+      <div>{appData}</div>
       <div className="text-center mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-[#4a4a4a] dark:text-[#f0f0f0] flex items-center justify-center">
           <span className="mr-2">🌟</span> Habits
